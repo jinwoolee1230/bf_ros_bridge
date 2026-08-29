@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>bf_ros_bridge</name>
+  <version>0.1.0</version>
+  <description>
+    MSP &lt;-&gt; ROS bridge for a custom Betaflight fork. Publishes RC, flight
+    status, motor RPM and IMU from MSP replies; subscribes body-rate + thrust
+    (MSP_CTBR, mavros_msgs/AttitudeTarget) and per-motor throttle
+    (MSP_THROTTLE, std_msgs/Float32MultiArray) setpoints and streams them to
+    the flight controller.
+  </description>
+  <maintainer email="jinwoolee1230@gmail.com">jinwoo</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>mavros_msgs</depend>
+
+  <exec_depend>python3-serial</exec_depend>
+</package>

@@ -1,0 +1,37 @@
+# bf_ros_bridge defaults. Loaded into the node's private namespace by the launch
+# file; the launch <arg>s overlay the common knobs on top of this.
+
+port: /dev/ttyACM0
+baud: 115200
+motor_count: 4
+frame_id: bf_imu
+
+# --- publishers: MSP poll rate == publish rate while the link is healthy -----
+publish:
+  rc:     {enabled: true,  rate_hz: 20}
+  status: {enabled: true,  rate_hz: 10}     # also the DiagnosticArray heartbeat
+  motor:  {enabled: true,  rate_hz: 50, esc: false}
+  imu:    {enabled: true,  rate_hz: 200}
+
+# --- control -----------------------------------------------------------------
+control:
+  ctbr_enabled: true            # subscribe ~setpoint_raw/attitude (mavros_msgs/AttitudeTarget)
+  throttle_enabled: false       # subscribe ~setpoint/motor_throttle (std_msgs/Float32MultiArray)
+  cmd_rate_hz: 100              # rate CTBR/THROTTLE frames are streamed to the FC
+  mode: auto                    # ctbr | throttle | auto (auto: throttle wins, else the fresh one)
+  idle_mode: ctbr               # frame type sent as zero keep-alive when nothing is fresh
+  command_timeout: 0.15         # s; setpoint older than this -> zero frame (FC window is 0.1 s)
+  max_thrust: 1.0              # collective-thrust clamp, 0..1
+  max_rate_radps: 12.0          # per-axis body-rate clamp (FC hard limit ~= 34.9)
+  max_motor_throttle: 1.0      # per-motor throttle clamp, 0..1
+  body_rate_sign: [1.0, 1.0, 1.0]   # [roll, pitch, yaw]; flip an entry if a bench test shows that axis inverted
+  body_rate_scale: 1.0
+
+# --- IMU scaling / frame ----------------------------------------------------
+imu:
+  frame: flu                    # flu (REP-103, negate y & z) | frd (raw sensor frame)
+  acc_1g: 2048.0                # MSP_RAW_IMU accel counts per g (BMI270 / MICOAIR743V2)
+  gyro_scale_dps_per_lsb: 0.06103515625   # 2000 / 32768
+  orientation_covariance: -1.0            # orientation not provided
+  angular_velocity_stddev: 0.02           # rad/s
+  linear_acceleration_stddev: 0.2         # m/s^2

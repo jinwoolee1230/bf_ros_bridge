@@ -1,0 +1,14 @@
+# Python bytecode and local test artifacts
+__pycache__/
+*.py[cod]
+
+# ROS/catkin build outputs
+build/
+devel/
+install/
+log/
+
+# Editor and OS metadata
+.vscode/
+.idea/
+.DS_Store

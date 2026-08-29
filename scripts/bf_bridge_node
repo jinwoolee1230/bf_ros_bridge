@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+"""Executable entry point for the bf_ros_bridge node."""
+
+from bf_ros_bridge.bridge import main
+
+if __name__ == "__main__":
+    main()

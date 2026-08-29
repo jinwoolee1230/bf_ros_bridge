@@ -1,0 +1,82 @@
+<launch>
+  <!-- ================= bf_ros_bridge =================
+       MSP <-> ROS bridge for the custom Betaflight fork. One node owns the
+       serial port; every stream toggles + rate-sets independently.
+
+       Bring-up (PROPS OFF):
+         1) roslaunch bf_ros_bridge bf_ros_bridge.launch port:=/dev/ttyACM0
+         2) rostopic echo -n1 /bf_ros_bridge/status
+         3) set the craft's AUX switch: MSP CTBR  (or MSP THROTTLE)
+         4) publish setpoints:
+              CTBR:     mavros_msgs/AttitudeTarget -> ~setpoint_raw/attitude
+              THROTTLE: std_msgs/Float32MultiArray -> ~setpoint/motor_throttle
+       ================================================= -->
+
+  <arg name="node_name"   default="bf_ros_bridge"/>
+  <arg name="port"        default="/dev/ttyACM0"/>
+  <arg name="baud"        default="115200"/>
+  <arg name="motor_count" default="4"/>
+  <arg name="frame_id"    default="bf_imu"/>
+
+  <!-- publishers: enable + Hz -->
+  <arg name="pub_rc"        default="true"/>   <arg name="pub_rc_hz"     default="20"/>
+  <arg name="pub_status"    default="true"/>   <arg name="pub_status_hz" default="10"/>
+  <arg name="pub_motor"     default="true"/>   <arg name="pub_motor_hz"  default="50"/>
+  <arg name="pub_motor_esc" default="false"/>
+  <arg name="pub_imu"       default="true"/>   <arg name="pub_imu_hz"    default="200"/>
+
+  <!-- control -->
+  <arg name="ctbr_enabled"           default="true"/>
+  <arg name="throttle_enabled"       default="false"/>
+  <arg name="cmd_hz"                 default="100"/>
+  <arg name="output_mode"            default="auto"/>     <!-- ctbr | throttle | auto -->
+  <arg name="idle_mode"             default="ctbr"/>
+  <arg name="command_timeout"        default="0.15"/>
+  <arg name="max_thrust"             default="1.0"/>
+  <arg name="max_rate_radps"         default="12.0"/>
+  <arg name="max_motor_throttle"     default="0.35"/>
+  <arg name="body_rate_sign"         default="[1.0, 1.0, 1.0]"/>
+  <arg name="body_rate_scale"        default="1.0"/>
+
+  <!-- IMU scaling -->
+  <arg name="imu_frame"              default="flu"/>
+  <arg name="acc_1g"                 default="2048.0"/>
+  <arg name="gyro_scale_dps_per_lsb" default="0.06103515625"/>
+
+  <!-- topic remaps (default: keep private; point at mavros to chain off it) -->
+  <arg name="attitude_topic" default="~setpoint_raw/attitude"/>
+  <arg name="throttle_topic" default="~setpoint/motor_throttle"/>
+
+  <node pkg="bf_ros_bridge" type="bf_bridge_node" name="$(arg node_name)" output="screen">
+    <rosparam command="load" file="$(find bf_ros_bridge)/config/params.yaml"/>
+    <rosparam subst_value="true">
+      port: $(arg port)
+      baud: $(arg baud)
+      motor_count: $(arg motor_count)
+      frame_id: $(arg frame_id)
+      publish:
+        rc:     {enabled: $(arg pub_rc),     rate_hz: $(arg pub_rc_hz)}
+        status: {enabled: $(arg pub_status), rate_hz: $(arg pub_status_hz)}
+        motor:  {enabled: $(arg pub_motor),  rate_hz: $(arg pub_motor_hz), esc: $(arg pub_motor_esc)}
+        imu:    {enabled: $(arg pub_imu),    rate_hz: $(arg pub_imu_hz)}
+      control:
+        ctbr_enabled: $(arg ctbr_enabled)
+        throttle_enabled: $(arg throttle_enabled)
+        cmd_rate_hz: $(arg cmd_hz)
+        mode: $(arg output_mode)
+        idle_mode: $(arg idle_mode)
+        command_timeout: $(arg command_timeout)
+        max_thrust: $(arg max_thrust)
+        max_rate_radps: $(arg max_rate_radps)
+        max_motor_throttle: $(arg max_motor_throttle)
+        body_rate_sign: $(arg body_rate_sign)
+        body_rate_scale: $(arg body_rate_scale)
+      imu:
+        frame: $(arg imu_frame)
+        acc_1g: $(arg acc_1g)
+        gyro_scale_dps_per_lsb: $(arg gyro_scale_dps_per_lsb)
+    </rosparam>
+    <remap from="~setpoint_raw/attitude"   to="$(arg attitude_topic)"/>
+    <remap from="~setpoint/motor_throttle" to="$(arg throttle_topic)"/>
+  </node>
+</launch>
