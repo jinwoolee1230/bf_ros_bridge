@@ -42,13 +42,15 @@
   <arg name="imu_frame"              default="flu"/>
   <arg name="acc_1g"                 default="2048.0"/>
   <arg name="gyro_scale_dps_per_lsb" default="0.06103515625"/>
+  <arg name="orientation_covariance"     default="-1.0"/>    <!-- orientation not provided -->
+  <arg name="angular_velocity_stddev"    default="0.02"/>    <!-- rad/s -->
+  <arg name="linear_acceleration_stddev" default="0.2"/>     <!-- m/s^2 -->
 
   <!-- topic remaps (default: keep private; point at mavros to chain off it) -->
   <arg name="attitude_topic" default="~setpoint_raw/attitude"/>
   <arg name="throttle_topic" default="~setpoint/motor_throttle"/>
 
   <node pkg="bf_ros_bridge" type="bf_bridge_node" name="$(arg node_name)" output="screen">
-    <rosparam command="load" file="$(find bf_ros_bridge)/config/params.yaml"/>
     <rosparam subst_value="true">
       port: $(arg port)
       baud: $(arg baud)
@@ -75,6 +77,9 @@
         frame: $(arg imu_frame)
         acc_1g: $(arg acc_1g)
         gyro_scale_dps_per_lsb: $(arg gyro_scale_dps_per_lsb)
+        orientation_covariance: $(arg orientation_covariance)
+        angular_velocity_stddev: $(arg angular_velocity_stddev)
+        linear_acceleration_stddev: $(arg linear_acceleration_stddev)
     </rosparam>
     <remap from="~setpoint_raw/attitude"   to="$(arg attitude_topic)"/>
     <remap from="~setpoint/motor_throttle" to="$(arg throttle_topic)"/>
