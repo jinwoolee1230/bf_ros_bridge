@@ -38,8 +38,7 @@
   <arg name="body_rate_sign"         default="[1.0, 1.0, 1.0]"/>
   <arg name="body_rate_scale"        default="1.0"/>
 
-  <!-- IMU scaling -->
-  <arg name="imu_frame"              default="flu"/>
+  <!-- IMU scaling (MSP_RAW_IMU is already REP-103 FLU; only unit scaling applied) -->
   <arg name="acc_1g"                 default="2048.0"/>
   <arg name="gyro_scale_dps_per_lsb" default="0.06103515625"/>
   <arg name="orientation_covariance"     default="-1.0"/>    <!-- orientation not provided -->
@@ -74,7 +73,6 @@
         body_rate_sign: $(arg body_rate_sign)
         body_rate_scale: $(arg body_rate_scale)
       imu:
-        frame: $(arg imu_frame)
         acc_1g: $(arg acc_1g)
         gyro_scale_dps_per_lsb: $(arg gyro_scale_dps_per_lsb)
         orientation_covariance: $(arg orientation_covariance)

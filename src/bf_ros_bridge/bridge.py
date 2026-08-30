@@ -83,7 +83,6 @@ class BfBridge(object):
         self.body_rate_sign = sign[:3]
         self.body_rate_scale = float(gp("~control/body_rate_scale", 1.0))
 
-        self.imu_frame = str(gp("~imu/frame", "flu")).lower()
         self.acc_1g = float(gp("~imu/acc_1g", 2048.0))
         self.gyro_scale = float(gp("~imu/gyro_scale_dps_per_lsb", 2000.0 / 32768.0))
         self.ori_cov = float(gp("~imu/orientation_covariance", -1.0))
@@ -306,15 +305,13 @@ class BfBridge(object):
         d = msp.decode_raw_imu(payload, self.acc_1g, self.gyro_scale)
         if d is None:
             return
+        # This fork's MSP_RAW_IMU is already in REP-103 FLU (X-fwd, Y-left, Z-up):
+        # bench-verified props-off (right-side-down -> +lin.acc.y, nose-up -> +ang.vel.y,
+        # yaw-right -> +ang.vel.z, roll-right -> +ang.vel.x). Only unit scaling is
+        # applied here (deg/s -> rad/s, g -> m/s^2). Do NOT re-add axis/sign flips
+        # without re-checking on the bench.
         gx, gy, gz = (v * msp.DEG2RAD for v in d["gyro"])
         ax, ay, az = (v * msp.G_TO_MS2 for v in d["acc"])
-        if self.imu_frame == "flu":
-            # Betaflight body frame is X-fwd, Y-right, Z-up with pilot-convention
-            # rate signs (roll-right/pitch-up/yaw-right positive). To REP-103 FLU
-            # (X-fwd, Y-left, Z-up): gyro flips Y & Z, accel flips Y only
-            # (accel already reads +1 g on +Z at rest, same as FLU).
-            gy, gz = -gy, -gz
-            ay = -ay
 
         m = Imu()
         m.header.stamp = rospy.Time.now()
