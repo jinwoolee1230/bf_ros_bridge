@@ -23,7 +23,7 @@
   <arg name="pub_status"    default="true"/>   <arg name="pub_status_hz" default="10"/>
   <arg name="pub_motor"     default="true"/>   <arg name="pub_motor_hz"  default="50"/>
   <arg name="pub_motor_esc" default="false"/>
-  <arg name="pub_imu"       default="true"/>   <arg name="pub_imu_hz"    default="200"/>
+  <arg name="pub_imu"       default="true"/>   <arg name="pub_imu_hz"    default="100"/>
 
   <!-- control -->
   <arg name="ctbr_enabled"           default="true"/>
